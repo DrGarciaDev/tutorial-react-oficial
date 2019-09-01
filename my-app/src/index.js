@@ -33,9 +33,9 @@ class Square extends React.Component {
         // Reemplaza el manejador de evento onClick={...} por onClick={() => this.setState({value: 'X'})}.
         // Pon los props className y onClick en líneas separadas para mejor legibilidad.
         <button className="square" 
-                onClick={ () => this.setState({ value: 'X'}) }
+                onClick={ () => this.props.onClick() }
         > 
-          { this.state.value }
+          { this.props.value }
         </button>
         // Llamando a this.setState desde el manejador onClick en el método render de Square, 
         // decimos a React que re-renderice el cuadrado siempre que su <button> es clickeado. 
@@ -49,8 +49,36 @@ class Square extends React.Component {
   }
   
   class Board extends React.Component {
+    // Para recopilar datos de múltiples hijos, o tener dos componentes hijos comunicados entre sí,
+    // necesitas declarar el estado compartido en su componente padre. 
+    // El componente padre puede pasar el estado hacia los hijos usando props; 
+    // esto mantiene los componentes hijos sincronizados entre ellos y con su componente padre.
+
+    // Elevar el estado al componente padre es común cuando componentes de React son refactorizados,
+    // vamos a tomar esta oportunidad para intentarlo.
+
+    // Añade un constructor al Board y establece el estado inicial de Board 
+    // para contener un arreglo con 9 valores null. Estos 9 nulls corresponden a los 9 cuadrados:
+    constructor( props ) {
+        super( props );
+        this.state = {
+            squares: Array(9).fill(null),
+        };
+    }
+
+    handleClick(i) {
+        const squares = this.state.squares.slice();
+        squares[i] = 'X';
+        this.setState( {squares: squares })
+    }
+
     renderSquare(i) {
-      return <Square value={i} />;
+      return (
+        <Square 
+            value={ this.state.squares[i] }
+            onClick={ () => this.handleClick(i) } 
+        />
+      );
     }
   
     render() {
