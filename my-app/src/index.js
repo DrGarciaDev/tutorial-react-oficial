@@ -172,6 +172,13 @@ class Game extends React.Component {
             history: [{
                 squares: Array(9).fill(null),
             }],
+            // Haciendo click en cualquiera de los botones de la lista arroja un error porque el método 
+            // jumpTo no está definido. Antes de implementar jumpTo, 
+            // agregaremos stepNumber al estado del componente Game para indicar qué paso 
+            // estamos viendo actualmente.
+
+            // Primero, agrega stepNumber: 0 al estado inicial en el constructor de Game:
+            stepNumber: 0,
             xIsNext: true,
         };
     }
@@ -180,7 +187,7 @@ class Game extends React.Component {
     // También necesitamos modificar handleClick porque el estado del componente Game está estructurado diferente.
     // En el método handleClick de Game, concatenamos la nueva entrada del historial en history.
     handleClick(i) {
-        const history = this.state.history;
+        const history = this.state.history.slice( 0, this.state.stepNumber + 1 );
         const current = history[ history.length - 1 ];
         const squares = current.squares.slice();
         if ( calculateWinner(squares) || squares[i] ) {
@@ -191,6 +198,7 @@ class Game extends React.Component {
             history: history.concat([{
                 squares: squares,
             }]),
+            stepNumber: history.length,
             xIsNext: !this.state.xIsNext,
         });
         // Nota
@@ -198,12 +206,20 @@ class Game extends React.Component {
         // el método concat() no mutal el array original, por eso lo preferimos.
     }
 
+    // Luego, definiremos el método jumpTo en el componente Game para actualizar el stepNumber. 
+    // También estableceremos xIsNext a verdadero si el número que estamos cambiando en stepNumber es par:
+    jumpTo( step ) {
+        this.setState({
+            stepNumber: step,
+            xIsNext: (step % 2) === 0,
+        });
+    }
 
     render() {
         // Actualizaremos el método render del componente Game 
         // para usar la entrada más reciente del historial para determinar y mostrar el estado del juego:
         const history = this.state.history;
-        const current = history[ history.length - 1 ];
+        const current = history[ this.state.stepNumber ];
         const winner = calculateWinner( current.squares );
 
         // Vamos a mapear sobre el historial en el método render del componente Game:
@@ -211,8 +227,17 @@ class Game extends React.Component {
             const desc = move ?
             'Go to move # ' + move :
             'Go to game start';
+            // Implementando viaje en el tiempo
+
+            // En el historial del juego de tic-tac-toe, 
+            // cada movimiento anterior tiene un ID único asociado; 
+            // es el número secuencial del movimiento. Los movimientos nunca son reordenados, 
+            // eliminados, ó insertados en el medio, así que es seguro usar los índices del movimiento como un key.
+
+            // En el método render del componente Game, podemos agregar el key como <li key={move} 
+            // la advertencia de React debería desaparecer:
             return (
-                <li>
+                <li key={ move }>
                     <button onClick={ () => this.jumpTo( move ) } >
                         { desc }
                     </button>
