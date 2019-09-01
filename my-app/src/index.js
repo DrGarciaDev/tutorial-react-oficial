@@ -2,53 +2,62 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-class Square extends React.Component {
-    // constructor para inicializar el estado de un componente:
-    // Como un siguiente paso, queremos que el componente Square “recuerde” que fue clickeado, 
-    // y se rellene con una marca de “X”. Para “recordar” cosas, los componente usan estado.
-    // Los componentes de React pueden tener estado estableciendo this.state en sus constructores. 
-    // this.state debe ser considerado como privado para un componente de React en el que es definido. 
-    // Vamos a almacenar el valor actual de un cuadrado en this.state, 
-    // y cambiarlo cuando el cuadrado es clickeado.
-    // Primero, vamos a agregar el constructor a la clase para inicializar el estado:
-    constructor( props ) {
-        super( props );
-        this.state = {
-            value: null,
-        };
-    } 
-    // Nota:
-    // En las clases de JavaScript, necesitas siempre llamar super cuando defines el constructor de una subclase. 
-    // Todas las clases de componentes de React que tienen un constructor deben empezar con una llamada a super(props)
+// class Square extends React.Component {
+//     // constructor para inicializar el estado de un componente:
+//     // Como un siguiente paso, queremos que el componente Square “recuerde” que fue clickeado, 
+//     // y se rellene con una marca de “X”. Para “recordar” cosas, los componente usan estado.
+//     // Los componentes de React pueden tener estado estableciendo this.state en sus constructores. 
+//     // this.state debe ser considerado como privado para un componente de React en el que es definido. 
+//     // Vamos a almacenar el valor actual de un cuadrado en this.state, 
+//     // y cambiarlo cuando el cuadrado es clickeado.
+//     // Primero, vamos a agregar el constructor a la clase para inicializar el estado:
+//     constructor( props ) {
+//         super( props );
+//         this.state = {
+//             value: null,
+//         };
+//     } 
+//     // Nota:
+//     // En las clases de JavaScript, necesitas siempre llamar super cuando defines el constructor de una subclase. 
+//     // Todas las clases de componentes de React que tienen un constructor deben empezar con una llamada a super(props)
 
-    render() {
-      return (
-        // sintaxis normal
-        // <button className="square" onClick={ function() { alert('click'); }}> 
-        // sintaxis de funcion de flecha
-        //* <button className="square" onClick={ () => alert('click') }>
+//     render() {
+//       return (
+//         // sintaxis normal
+//         // <button className="square" onClick={ function() { alert('click'); }}> 
+//         // sintaxis de funcion de flecha
+//         //* <button className="square" onClick={ () => alert('click') }>
 
-        // Ahora vamos a cambiar el método render de Square para mostrar el valor del estado actual cuando es clickeado:
-        // Reemplaza this.props.value por this.state.value dentro de la etiqueta <button>.
-        // Reemplaza el manejador de evento onClick={...} por onClick={() => this.setState({value: 'X'})}.
-        // Pon los props className y onClick en líneas separadas para mejor legibilidad.
-        <button className="square" 
-                onClick={ () => this.props.onClick() }
-        > 
-          { this.props.value }
+//         // Ahora vamos a cambiar el método render de Square para mostrar el valor del estado actual cuando es clickeado:
+//         // Reemplaza this.props.value por this.state.value dentro de la etiqueta <button>.
+//         // Reemplaza el manejador de evento onClick={...} por onClick={() => this.setState({value: 'X'})}.
+//         // Pon los props className y onClick en líneas separadas para mejor legibilidad.
+//         <button className="square" 
+//                 onClick={ () => this.props.onClick() }
+//         > 
+//           { this.props.value }
+//         </button>
+//         // Llamando a this.setState desde el manejador onClick en el método render de Square, 
+//         // decimos a React que re-renderice el cuadrado siempre que su <button> es clickeado. 
+//         // Luego de la actualización, el this.state.value del cuadrado será 'X', 
+//         // así que veremos X en el tablero de juego. Si tu haces click en cualquier cuadrado, 
+//         // una X debería mostrarse en el mismo.
+//         // Cuando llamas setState en un componente, 
+//         // React actualiza automáticamente los componentes hijos dentro del mismo también.
+//       );
+//     }
+//   }
+function Square(props) {
+    return (
+        <button className="square"
+                onClick="{ props.onClick }">
+            { props.value }
         </button>
-        // Llamando a this.setState desde el manejador onClick en el método render de Square, 
-        // decimos a React que re-renderice el cuadrado siempre que su <button> es clickeado. 
-        // Luego de la actualización, el this.state.value del cuadrado será 'X', 
-        // así que veremos X en el tablero de juego. Si tu haces click en cualquier cuadrado, 
-        // una X debería mostrarse en el mismo.
-        // Cuando llamas setState en un componente, 
-        // React actualiza automáticamente los componentes hijos dentro del mismo también.
-      );
-    }
-  }
+    );
+}
+
   
-  class Board extends React.Component {
+class Board extends React.Component {
     // Para recopilar datos de múltiples hijos, o tener dos componentes hijos comunicados entre sí,
     // necesitas declarar el estado compartido en su componente padre. 
     // El componente padre puede pasar el estado hacia los hijos usando props; 
@@ -105,9 +114,9 @@ class Square extends React.Component {
         </div>
       );
     }
-  }
+}
   
-  class Game extends React.Component {
+class Game extends React.Component {
     render() {
       return (
         <div className="game">
@@ -121,12 +130,12 @@ class Square extends React.Component {
         </div>
       );
     }
-  }
+}
   
   // ========================================
   
-  ReactDOM.render(
+ReactDOM.render(
     <Game />,
     document.getElementById('root')
-  );
+);
   
