@@ -82,36 +82,37 @@ class Board extends React.Component {
 
     // Añade un constructor al Board y establece el estado inicial de Board 
     // para contener un arreglo con 9 valores null. Estos 9 nulls corresponden a los 9 cuadrados:
-    constructor( props ) {
-        super( props );
-        this.state = {
-            squares: Array(9).fill(null),
-            xIsNext: true,
-        };
-    }
+
+    // constructor( props ) {
+    //     super( props );
+    //     this.state = {
+    //         squares: Array(9).fill(null),
+    //         xIsNext: true,
+    //     };
+    // }
     
     // Cada vez que el jugador haga un movimiento, xIsNext (un booleano) será invertido 
     // para determinar qué jugador sigue y el estado del juego será guardado. 
     // Actualizaremos la función handleClick del componente Board para invertir el valor de xIsNext:
-    handleClick(i) {
-        const squares = this.state.squares.slice();
-        // Ahora podemos cambiar la función handleClick del componente Board para retornar rápidamente 
-        // ignorando un click si alguien ha ganado el juego o si un cuadrado está ya rellenado:
-        if ( calculateWinner(squares) || squares[i] ) {
-            return;
-        }
-        squares[i] = this.state.xIsNext ? 'X' : 'O';
-        this.setState( {
-            squares: squares,
-            xIsNext: !this.state.xIsNext,
-        });
-    }
+    // handleClick(i) {
+    //     const squares = this.state.squares.slice();
+    //     // Ahora podemos cambiar la función handleClick del componente Board para retornar rápidamente 
+    //     // ignorando un click si alguien ha ganado el juego o si un cuadrado está ya rellenado:
+    //     if ( calculateWinner(squares) || squares[i] ) {
+    //         return;
+    //     }
+    //     squares[i] = this.state.xIsNext ? 'X' : 'O';
+    //     this.setState( {
+    //         squares: squares,
+    //         xIsNext: !this.state.xIsNext,
+    //     });
+    // }
 
     renderSquare(i) {
       return (
         <Square 
-            value={ this.state.squares[i] }
-            onClick={ () => this.handleClick(i) } 
+            value={ this.props.squares[i] }
+            onClick={ () => this.props.onClick(i) } 
         />
       );
     }
@@ -120,23 +121,23 @@ class Board extends React.Component {
     // en el render del Board para que muestre qué jugador tiene el siguiente turno:
     render() {
         
-        // Llamaremos a calculateWinner(squares) en el método render del componente Board 
-        // para revisar si un jugador ha ganado. Si un jugador ha ganado, 
-        // podemos mostrar un texto como: “Winner: X” o “Winner: O”. 
-        // Reemplazaremos la declaración del status en el método render de Board con este código:
-        const winner = calculateWinner( this.state.squares );
+        // // Llamaremos a calculateWinner(squares) en el método render del componente Board 
+        // // para revisar si un jugador ha ganado. Si un jugador ha ganado, 
+        // // podemos mostrar un texto como: “Winner: X” o “Winner: O”. 
+        // // Reemplazaremos la declaración del status en el método render de Board con este código:
+        // const winner = calculateWinner( this.state.squares );
 
-        let status;
+        // let status;
 
-        if (winner) {
-            status = 'Winner: ' + winner;
-        } else {
-            status = 'Next player: ' + ( this.state.xIsNext ? 'X' : 'O' );
-        }
+        // if (winner) {
+        //     status = 'Winner: ' + winner;
+        // } else {
+        //     status = 'Next player: ' + ( this.state.xIsNext ? 'X' : 'O' );
+        // }
   
       return (
         <div>
-          <div className="status">{status}</div>
+          {/* <div className="status">{status}</div> */}
           <div className="board-row">
             {this.renderSquare(0)}
             {this.renderSquare(1)}
@@ -158,18 +159,76 @@ class Board extends React.Component {
 }
   
 class Game extends React.Component {
+    // Colocando el estado history en el componente Game te permite eliminar el estado squares 
+    // de su componente hijo Board. Tal como “elevamos el estado” del componente Square al componente Board, 
+    // ahora elevaremos del Board al componente Game. 
+    // Esto dará al componente Game completo control sobre los datos de Board, 
+    // y permitirá instruir al tablero que renderice los turnos previos desde el history.
+
+    // Primero, vamos a establecer el estado inicial para el componente Game en su constructor:
+    constructor(props) {
+        super(props);
+        this.state = {
+            history: [{
+                squares: Array(9).fill(null),
+            }],
+            xIsNext: true,
+        };
+    }
+
+    // Por último, necesitamos mover el método handleClick del componente Board al componente Game. 
+    // También necesitamos modificar handleClick porque el estado del componente Game está estructurado diferente.
+    // En el método handleClick de Game, concatenamos la nueva entrada del historial en history.
+    handleClick(i) {
+        const history = this.state.history;
+        const current = history[ history.length - 1 ];
+        const squares = current.squares.slice();
+        if ( calculateWinner(squares) || squares[i] ) {
+            return;
+        }
+        squares[i] = this.state.xIsNext ? 'X' : 'O';
+        this.setState( {
+            history: history.concat([{
+                squares: squares,
+            }]),
+            xIsNext: !this.state.xIsNext,
+        });
+        // Nota
+        // A diferencia del método push() de los arrays que debes estar más familiarizado, 
+        // el método concat() no mutal el array original, por eso lo preferimos.
+    }
+
+
     render() {
-      return (
-        <div className="game">
-          <div className="game-board">
-            <Board />
-          </div>
-          <div className="game-info">
-            <div>{/* status */}</div>
-            <ol>{/* TODO */}</ol>
-          </div>
-        </div>
-      );
+        // Actualizaremos el método render del componente Game 
+        // para usar la entrada más reciente del historial para determinar y mostrar el estado del juego:
+        const history = this.state.history;
+        const current = history[ history.length - 1 ];
+        const winner = calculateWinner( current.squares );
+
+        let status;
+
+        if ( winner ) {
+            status = 'Winner: ' + winner;
+        } else {
+            status = 'Next palyer: ' + ( this.state.xIsNext ? 'X' : 'O' );
+        }
+
+        return (
+            <div className="game">
+                <div className="game-board">
+                    <Board 
+                        squares={ current.squares }
+                        onClick={ (i) => this.handleClick(i) }
+                    />
+                </div>
+
+                <div className="game-info">
+                    <div>{ status }</div>
+                    <ol>{/* TODO */}</ol>
+                </div>
+            </div>
+        );
     }
 }
   
