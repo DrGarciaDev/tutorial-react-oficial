@@ -47,15 +47,29 @@ import './index.css';
 //       );
 //     }
 //   }
+
+// Componentes de función
+// En React, componentes de función son una forma más simple de escribir componentes 
+// que solo contienen un método render y no tiene estado propio. 
+// En lugar de definir una clase que extiende React.Component, 
+// podemos escribir una función que toma props como parámetros y retorna lo que se debe renderizar. 
+// Componentes de función son menos tediosos de escribir que clases,
+// y muchos componentes pueden ser expresados de esta manera.
+
+// Reemplaza la clase Square por esta función:
 function Square(props) {
     return (
         <button className="square"
-                onClick="{ props.onClick }">
+                onClick={ props.onClick }>
             { props.value }
         </button>
     );
 }
 
+
+// Estableceremos el primer movimiento a ser una “X” por defecto. 
+// Podemos establecer el valor por defecto modificando el estado inicial 
+// en nuestro constructor del componente Board:
   
 class Board extends React.Component {
     // Para recopilar datos de múltiples hijos, o tener dos componentes hijos comunicados entre sí,
@@ -72,13 +86,20 @@ class Board extends React.Component {
         super( props );
         this.state = {
             squares: Array(9).fill(null),
+            xIsNext: true,
         };
     }
-
+    
+    // Cada vez que el jugador haga un movimiento, xIsNext (un booleano) será invertido 
+    // para determinar qué jugador sigue y el estado del juego será guardado. 
+    // Actualizaremos la función handleClick del componente Board para invertir el valor de xIsNext:
     handleClick(i) {
         const squares = this.state.squares.slice();
-        squares[i] = 'X';
-        this.setState( {squares: squares })
+        squares[i] = this.state.xIsNext ? 'X' : 'O';
+        this.setState( {
+            squares: squares,
+            xIsNext: !this.state.xIsNext,
+        });
     }
 
     renderSquare(i) {
@@ -89,9 +110,11 @@ class Board extends React.Component {
         />
       );
     }
-  
+    
+    // También vamos a cambiar el texto de “status” 
+    // en el render del Board para que muestre qué jugador tiene el siguiente turno:
     render() {
-      const status = 'Next player: X';
+      const status = 'Next player: ' + ( this.state.xIsNext ? 'X' : 'O' );
   
       return (
         <div>
