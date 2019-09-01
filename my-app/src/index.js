@@ -95,6 +95,11 @@ class Board extends React.Component {
     // Actualizaremos la función handleClick del componente Board para invertir el valor de xIsNext:
     handleClick(i) {
         const squares = this.state.squares.slice();
+        // Ahora podemos cambiar la función handleClick del componente Board para retornar rápidamente 
+        // ignorando un click si alguien ha ganado el juego o si un cuadrado está ya rellenado:
+        if ( calculateWinner(squares) || squares[i] ) {
+            return;
+        }
         squares[i] = this.state.xIsNext ? 'X' : 'O';
         this.setState( {
             squares: squares,
@@ -114,7 +119,20 @@ class Board extends React.Component {
     // También vamos a cambiar el texto de “status” 
     // en el render del Board para que muestre qué jugador tiene el siguiente turno:
     render() {
-      const status = 'Next player: ' + ( this.state.xIsNext ? 'X' : 'O' );
+        
+        // Llamaremos a calculateWinner(squares) en el método render del componente Board 
+        // para revisar si un jugador ha ganado. Si un jugador ha ganado, 
+        // podemos mostrar un texto como: “Winner: X” o “Winner: O”. 
+        // Reemplazaremos la declaración del status en el método render de Board con este código:
+        const winner = calculateWinner( this.state.squares );
+
+        let status;
+
+        if (winner) {
+            status = 'Winner: ' + winner;
+        } else {
+            status = 'Next player: ' + ( this.state.xIsNext ? 'X' : 'O' );
+        }
   
       return (
         <div>
@@ -161,4 +179,31 @@ ReactDOM.render(
     <Game />,
     document.getElementById('root')
 );
-  
+
+// Ahora que mostramos de qué jugador es el siguiente turno, 
+// debemos también mostrar cuando alguien ganó el juego y si no hay más movimientos que hacer. 
+function calculateWinner(squares) {
+    
+    const lines = [
+        [0,1,2],
+        [3,4,5],
+        [6,7,8],
+        [0,3,6],
+        [1,4,7],
+        [2,5,8],
+        [0,4,8],
+        [2,4,6],
+    ];
+
+    for (let i = 0; i < lines.length; i++) {
+        
+        const [a,b,c] = lines[i];
+        
+        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c] ) {
+            return squares[a];
+        }
+
+    }
+
+    return null;
+}
